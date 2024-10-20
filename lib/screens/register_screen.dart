@@ -74,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _buildLabel(String label) {
     return Text(
       label,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w500,
         color: Colors.black,
@@ -91,7 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(8.0),
         ),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey),
+        hintStyle: const TextStyle(color: Colors.grey),
       ),
       maxLines: 1,
     );
@@ -110,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             });
           },
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildDropdown<String>(
           hint: selectedDepartment ?? 'Department',
           items: ['ECE', 'Mech', 'CSE', 'Civil', 'IT', 'Cyber'],
@@ -168,12 +168,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange,
-          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
         ),
-        child: Text(
+        child: const Text(
           'Register',
           style: TextStyle(
             fontSize: 20,
@@ -189,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+       const Text(
           "Already have an account? ",
           style: TextStyle(
             fontSize: 18,
@@ -204,7 +204,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               MaterialPageRoute(builder: (context) => LoginScreen()),
             );
           },
-          child: Text(
+          child: const Text(
             ' Login',
             style: TextStyle(
               fontSize: 18,

@@ -1,13 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'choose_file_screen.dart';
 
 class FileUploadScreen extends StatefulWidget {
   final List<String> selectedFilePaths;
-  final String userName; // Passed from LoginScreen for displaying the username
+  final String userName;
 
   FileUploadScreen({
     required this.selectedFilePaths,
-    required this.userName,
+    required this.userName, required List<String> fileDetails,
   });
 
   @override
@@ -24,7 +27,7 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
       final iconDataAndColor = getFileIcon(path);
       return FileItem(
         name: path.split('/').last,
-        size: 'Unknown', // You can implement file size retrieval if needed
+        size: getFileSize(path),
         icon: iconDataAndColor['icon']!,
         color: iconDataAndColor['color']!,
         uploaded: false,
@@ -32,35 +35,72 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
     }).toList();
   }
 
+  // Function to pick new files from local storage
+  Future<void> _pickFiles() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true, // Allows selecting multiple files
+    );
+
+    if (result != null) {
+      setState(() {
+        for (var file in result.files) {
+          if (file.path != null) {
+            files.add(FileItem(
+              name: file.name,
+              size: getFileSize(file.path!),
+              icon: getFileIcon(file.path!)['icon']!,
+              color: getFileIcon(file.path!)['color']!,
+              uploaded: false,
+            ));
+          }
+        }
+      });
+    }
+  }
+
+  String getFileSize(String path) {
+    final file = File(path);
+    if (file.existsSync()) {
+      final sizeInBytes = file.lengthSync();
+      if (sizeInBytes < 1000) {
+        return '${sizeInBytes.toString()} Bytes';
+      } else if (sizeInBytes < 1000000) {
+        return '${(sizeInBytes / 1024).toStringAsFixed(2)} KB';
+      } else if (sizeInBytes < 1000000000) {
+        return '${(sizeInBytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+      } else {
+        return '${(sizeInBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+      }
+    }
+    return 'Unknown';
+  }
+
   Future<void> uploadFile(FileItem file) async {
     try {
-      final uri = Uri.parse(
-          'https://example.com/upload'); // Replace with your upload URL
+      final uri = Uri.parse('https://example.com/upload'); // Replace with your upload URL
 
-      // Create a multipart request
       var request = http.MultipartRequest('POST', uri)
-        ..files.add(await http.MultipartFile.fromPath('file',
-            widget.selectedFilePaths.firstWhere((p) => p.endsWith(file.name))));
+        ..files.add(await http.MultipartFile.fromPath(
+          'file',
+          widget.selectedFilePaths.firstWhere((p) => p.endsWith(file.name)),
+        ));
 
-      // Send the request
+      // Show loading status
+      setState(() {
+        file.uploaded = false; // Reset uploaded state
+      });
+
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        // Successfully uploaded
         setState(() {
           file.uploaded = true; // Mark the file as uploaded
         });
       } else {
-        // Handle error response
-        setState(() {
-          file.uploaded = false; // Mark the file as failed to upload
-        });
+        _showSnackBar('Error: File upload failed.'); // Provide error feedback
       }
     } catch (e) {
-      // Handle any exceptions
-      setState(() {
-        file.uploaded = false; // Mark the file as failed to upload
-      });
+      _showSnackBar('Exception: ${e.toString()}'); // Handle exceptions
     }
   }
 
@@ -76,6 +116,12 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
     });
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +129,7 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
         title: Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: Text(
-            widget.userName, // Display the username passed from LoginScreen
+            widget.userName,
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -124,9 +170,12 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
                     ),
                     onDismissed: (direction) {
                       _removeFile(index); // Remove the file from the list
+                      _showSnackBar('File removed successfully.');
                     },
                     child: FileCard(
-                        file: files[index], onDelete: () => _removeFile(index)),
+                      file: files[index], // Pass the file directly
+                      onDelete: () => _removeFile(index), // Handle deletion
+                    ),
                   );
                 },
               ),
@@ -135,11 +184,8 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Implement file browsing functionality here
-                  },
-                  icon:
-                      const Icon(Icons.upload_file_sharp, color: Colors.white),
+                  onPressed: _pickFiles, // Pick files when "Browse" button is pressed
+                  icon: const Icon(Icons.upload_file_sharp, color: Colors.white),
                   label: const Text(
                     'Browse',
                     style: TextStyle(fontSize: 16, color: Colors.white),
@@ -156,22 +202,30 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
                   ),
                 ),
                 ElevatedButton(
-  onPressed: _uploadFiles, // Start the upload process
-  child: const Text(
-    'Next',
-    style: TextStyle(color: Colors.white), // Set text color to white
-  ),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.green,
-    padding: EdgeInsets.symmetric(
-      vertical: MediaQuery.of(context).size.height * 0.02,
-      horizontal: MediaQuery.of(context).size.height * 0.04,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(2), // Reduced border radius
-    ),
-  ),
-),
+                  onPressed: () {
+                    _uploadFiles(); // Start the upload process
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChooseFileScreen(files: files), // Pass files to ChooseFileScreen
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(
+                      vertical: MediaQuery.of(context).size.height * 0.02,
+                      horizontal: MediaQuery.of(context).size.height * 0.04,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
@@ -187,43 +241,43 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
 
     switch (extension) {
       case 'pdf':
-        icon = Icons.picture_as_pdf; // PDF file icon
-        color = Colors.red; // Color for PDF
+        icon = Icons.picture_as_pdf;
+        color = Colors.red;
         break;
       case 'doc':
       case 'docx':
-        icon = Icons.article; // Word document icon
-        color = Colors.blue; // Color for Word documents
+        icon = Icons.article;
+        color = Colors.blue;
         break;
       case 'xls':
       case 'xlsx':
-        icon = Icons.table_chart; // Excel file icon
-        color = Colors.green; // Color for Excel files
+        icon = Icons.table_chart;
+        color = Colors.green;
         break;
       case 'ppt':
       case 'pptx':
-        icon = Icons.slideshow; // PowerPoint file icon
-        color = Colors.orange; // Color for PowerPoint
+        icon = Icons.slideshow;
+        color = Colors.orange;
         break;
       case 'jpg':
       case 'jpeg':
       case 'png':
-        icon = Icons.image; // Image file icon
-        color = Colors.pink; // Color for images
+        icon = Icons.image;
+        color = Colors.pink;
         break;
       case 'mp4':
       case 'mov':
-        icon = Icons.videocam; // Video file icon
-        color = Colors.teal; // Color for videos
+        icon = Icons.videocam;
+        color = Colors.teal;
         break;
       case 'zip':
       case 'rar':
-        icon = Icons.folder_zip; // Zip file icon
-        color = Colors.brown; // Color for Zip files
+        icon = Icons.folder_zip;
+        color = Colors.brown;
         break;
       default:
-        icon = Icons.file_present; // Generic file icon
-        color = Colors.grey; // Default color
+        icon = Icons.file_present;
+        color = Colors.grey;
     }
 
     return {'icon': icon, 'color': color};
@@ -250,21 +304,20 @@ class FileCard extends StatelessWidget {
   final FileItem file;
   final VoidCallback onDelete;
 
-  FileCard({required this.file, required this.onDelete});
+  const FileCard({
+    required this.file,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: file.uploaded
-              ? Colors.green.withOpacity(0.1)
-              : Colors.red.withOpacity(0.1),
-          child: Icon(
-            file.icon,
-            color: file.uploaded ? Colors.green : Colors.red,
-          ),
+          backgroundColor: file.color,
+          child: Icon(file.icon, color: Colors.white),
         ),
         title: Text(file.name),
         subtitle: Text(file.size),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:printz/screens/file_upload_screen.dart';
-import 'package:printz/screens/login_screen.dart'; // Import the LoginScreen
+import 'package:printz/screens/login_screen.dart';
+import 'dart:math'; // Import dart:math for the log() function
 
 // Main Screen where user selects files
 class DocumentUploadScreen extends StatefulWidget {
@@ -46,16 +47,12 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               ],
             ),
             onPressed: () {
-              // Start loading and navigate to the LoginScreen after a delay
               setState(() {
                 _isLoading = true; // Start loading animation
               });
 
               // Simulate logout process
               Future.delayed(const Duration(seconds: 2), () {
-                // Clear user data if necessary here
-
-                // Navigate to LoginScreen after loading
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -80,7 +77,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+               padding:  const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -105,22 +102,23 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                 ),
               ),
             ),
-            if (_isLoading) // Show loading animation if loading
+            if (_isLoading)
               Container(
-                color: Colors.black54, // Semi-transparent overlay
+                color: Colors.black54,
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange), // Set loading color to orange
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.orange),
                         strokeWidth: 4,
                       ),
                       const SizedBox(height: 16),
                       const Text(
                         'Logging out...',
                         style: TextStyle(
-                          color: Colors.orange, // Set text color to orange
+                          color: Colors.orange,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -149,11 +147,20 @@ class UploadContainer extends StatefulWidget {
 class _UploadContainerState extends State<UploadContainer> {
   late String userName;
   bool _isLoading = false;
+  List<String> fileDetails = [];
 
   @override
   void initState() {
     super.initState();
     userName = widget.userName;
+  }
+
+  // Utility function to convert bytes to readable size
+  String getFileSizeString({required int bytes, int decimals = 2}) {
+    if (bytes <= 0) return "0 B";
+    const suffixes = ["B", "KB", "MB", "GB", "TB"];
+    var i = (log(bytes) / log(1024)).floor(); // Corrected usage of log()
+    return ((bytes / pow(1024, i)).toStringAsFixed(decimals)) + ' ' + suffixes[i];
   }
 
   Future<void> _pickFiles(BuildContext context) async {
@@ -168,21 +175,28 @@ class _UploadContainerState extends State<UploadContainer> {
 
     if (result != null && result.files.isNotEmpty) {
       List<String> selectedFilePaths = result.paths.whereType<String>().toList();
-      print("Selected files: $selectedFilePaths");
+      fileDetails.clear();
 
-      // Corrected Navigation Code with updated constructor
+      for (var file in result.files) {
+        String fileSize = getFileSizeString(bytes: file.size);
+        fileDetails.add('File: ${file.name}, Size: $fileSize');
+      }
+
+      // Navigate to FileUploadScreen
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => FileUploadScreen(
             selectedFilePaths: selectedFilePaths,
             userName: userName,
+            fileDetails: fileDetails,
           ),
         ),
       );
     } else {
       print("No files selected");
     }
+    
 
     setState(() {
       _isLoading = false;
@@ -221,7 +235,7 @@ class _UploadContainerState extends State<UploadContainer> {
           ),
           const SizedBox(height: 24),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6, // 60% of the screen width
+            width: MediaQuery.of(context).size.width * 0.6,
             child: ElevatedButton.icon(
               onPressed: _isLoading ? null : () => _pickFiles(context),
               icon: _isLoading
@@ -255,3 +269,4 @@ class _UploadContainerState extends State<UploadContainer> {
     );
   }
 }
+

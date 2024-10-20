@@ -4,6 +4,7 @@ import 'package:printz/screens/register_screen.dart';
 import 'package:printz/screens/splash_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 

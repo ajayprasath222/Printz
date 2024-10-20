@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey),
+              hintStyle:const TextStyle(color: Colors.grey),
             ),
             maxLines: 1,
           ),
