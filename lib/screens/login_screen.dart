@@ -3,7 +3,10 @@ import 'package:printz/screens/document_upload_screen.dart';
 import 'package:printz/screens/register_screen.dart'; // Ensure the path is correct
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -63,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Container(
+    return SizedBox(
       width: screenWidth * 0.8,
       child: ElevatedButton(
         onPressed: () {
@@ -76,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
 );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Please enter all required details")),
+              const SnackBar(content: Text("Please enter all required details")),
             );
           }
         },
@@ -117,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => RegisterScreen()),
+              MaterialPageRoute(builder: (context) => const RegisterScreen()),
             );
           },
           child: Text(

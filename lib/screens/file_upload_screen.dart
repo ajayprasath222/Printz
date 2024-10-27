@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'choose_file_screen.dart';
+// import 'package:printz/models/file_item.dart';
+
 
 class FileUploadScreen extends StatefulWidget {
   final List<String> selectedFilePaths;
   final String userName;
 
-  FileUploadScreen({
+  const FileUploadScreen({super.key, 
     required this.selectedFilePaths,
     required this.userName, required List<String> fileDetails,
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _FileUploadScreenState createState() => _FileUploadScreenState();
 }
 
@@ -181,7 +184,7 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
               ),
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton.icon(
                   onPressed: _pickFiles, // Pick files when "Browse" button is pressed
@@ -207,23 +210,24 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ChooseFileScreen(files: files), // Pass files to ChooseFileScreen
+                        builder: (context) => ChooseFileScreen(files: files,
+                        userName: widget.userName), // Pass files to ChooseFileScreen
                       ),
                     );
                   },
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(color: Colors.white),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(
                       vertical: MediaQuery.of(context).size.height * 0.02,
-                      horizontal: MediaQuery.of(context).size.height * 0.04,
+                      horizontal: MediaQuery.of(context).size.height * 0.05,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(7),
                     ),
+                  ),
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(color: Colors.white,fontSize: 17,),
                   ),
                 ),
               ],
@@ -284,27 +288,27 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
   }
 }
 
-class FileItem {
-  final String name;
-  final String size;
-  final IconData icon;
-  final Color color;
-  bool uploaded;
+// class FileItem {
+//   final String name;
+//   final String size;
+//   final IconData icon;
+//   final Color color;
+//   bool uploaded;
 
-  FileItem({
-    required this.name,
-    required this.size,
-    required this.icon,
-    required this.color,
-    this.uploaded = false,
-  });
-}
+//   FileItem({
+//     required this.name,
+//     required this.size,
+//     required this.icon,
+//     required this.color,
+//     this.uploaded = false,
+//   });
+// }
 
 class FileCard extends StatelessWidget {
   final FileItem file;
   final VoidCallback onDelete;
 
-  const FileCard({
+  const FileCard({super.key, 
     required this.file,
     required this.onDelete,
   });

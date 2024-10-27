@@ -8,9 +8,10 @@ import 'dart:math'; // Import dart:math for the log() function
 class DocumentUploadScreen extends StatefulWidget {
   final String userName;
 
-  DocumentUploadScreen({required this.userName});
+  const DocumentUploadScreen({super.key, required this.userName});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DocumentUploadScreenState createState() => _DocumentUploadScreenState();
 }
 
@@ -40,10 +41,10 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           IconButton(
-            icon: Row(
+            icon: const Row(
               children: [
-                const Icon(Icons.logout, color: Colors.black),
-                const SizedBox(width: 18),
+                Icon(Icons.logout, color: Colors.black),
+                SizedBox(width: 18),
               ],
             ),
             onPressed: () {
@@ -54,8 +55,9 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               // Simulate logout process
               Future.delayed(const Duration(seconds: 2), () {
                 Navigator.pushReplacement(
+                  // ignore: use_build_context_synchronously
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               });
             },
@@ -105,17 +107,17 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
             if (_isLoading)
               Container(
                 color: Colors.black54,
-                child: Center(
+                child: const Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const CircularProgressIndicator(
+                      CircularProgressIndicator(
                         valueColor:
                             AlwaysStoppedAnimation<Color>(Colors.orange),
                         strokeWidth: 4,
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
+                      SizedBox(height: 16),
+                      Text(
                         'Logging out...',
                         style: TextStyle(
                           color: Colors.orange,
@@ -138,9 +140,10 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
 class UploadContainer extends StatefulWidget {
   final String userName;
 
-  UploadContainer({required this.userName});
+  const UploadContainer({super.key, required this.userName});
 
   @override
+  // ignore: library_private_types_in_public_api
   _UploadContainerState createState() => _UploadContainerState();
 }
 
@@ -160,7 +163,7 @@ class _UploadContainerState extends State<UploadContainer> {
     if (bytes <= 0) return "0 B";
     const suffixes = ["B", "KB", "MB", "GB", "TB"];
     var i = (log(bytes) / log(1024)).floor(); // Corrected usage of log()
-    return ((bytes / pow(1024, i)).toStringAsFixed(decimals)) + ' ' + suffixes[i];
+    return '${(bytes / pow(1024, i)).toStringAsFixed(decimals)} ${suffixes[i]}';
   }
 
   Future<void> _pickFiles(BuildContext context) async {
@@ -184,6 +187,7 @@ class _UploadContainerState extends State<UploadContainer> {
 
       // Navigate to FileUploadScreen
       Navigator.push(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => FileUploadScreen(
@@ -194,7 +198,6 @@ class _UploadContainerState extends State<UploadContainer> {
         ),
       );
     } else {
-      print("No files selected");
     }
     
 

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:printz/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
@@ -86,7 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -159,12 +162,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildRegisterButton() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
           // Handle register action
-          print('Register button pressed');
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange,
@@ -201,7 +203,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
             );
           },
           child: const Text(

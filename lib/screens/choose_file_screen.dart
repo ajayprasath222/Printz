@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:printz/screens/file_upload_screen.dart';
+// Import the DetailsScreen file here
+import 'details_screen.dart';
 
 class ChooseFileScreen extends StatefulWidget {
   final List<FileItem> files;
+  final String userName;
 
   const ChooseFileScreen({
-    Key? key,
+    super.key,
     required this.files,
-  }) : super(key: key);
+    required this.userName,
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChooseFileScreenState createState() => _ChooseFileScreenState();
 }
 
@@ -26,7 +30,21 @@ class _ChooseFileScreenState extends State<ChooseFileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose Files'),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Text(
+            widget.userName,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 10,
+        shadowColor: Colors.black.withOpacity(0.01),
+        automaticallyImplyLeading: false,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SafeArea(
         child: Padding(
@@ -42,7 +60,7 @@ class _ChooseFileScreenState extends State<ChooseFileScreen> {
                   value: isCheckedList[index],
                   onChanged: (value) {
                     setState(() {
-                      isCheckedList[index] = value!; // Toggle the checkbox value
+                      isCheckedList[index] = value!;
                     });
                   },
                   secondary: Icon(widget.files[index].icon, color: widget.files[index].color),
@@ -55,36 +73,44 @@ class _ChooseFileScreenState extends State<ChooseFileScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SizedBox(
-          width: double.infinity, // Make the button fill the available width
+          width: double.infinity,
           child: ElevatedButton(
-            onPressed: isCheckedList.contains(true) ? () {
-              List<FileItem> selectedFiles = [];
-              for (int i = 0; i < widget.files.length; i++) {
-                if (isCheckedList[i]) {
-                  selectedFiles.add(widget.files[i]); // Add selected files to the list
-                }
-              }
-              if (selectedFiles.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('No files selected')),
-                );
-              } else {
-                // Handle selected files
-                Navigator.pop(context, selectedFiles); // Return selected files to the previous screen
-              }
-            } : null, // Make the button inactive if no checkbox is selected
-            child: const Text(
-              'Update',
-              style: TextStyle(fontSize: 18,
-                color: Colors.white,
-                fontWeight: FontWeight.bold, // Set text to bold
-              ),
-            ),
+            onPressed: isCheckedList.contains(true)
+                ? () {
+                    List<FileItem> selectedFiles = [];
+                    for (int i = 0; i < widget.files.length; i++) {
+                      if (isCheckedList[i]) {
+                        selectedFiles.add(widget.files[i]);
+                      }
+                    }
+                    if (selectedFiles.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No files selected')),
+                      );
+                    } else {
+                      // Navigate to DetailsScreen with selectedFiles as arguments
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailsPage(selectedFiles: selectedFiles, userName: widget.userName,),
+                        ),
+                      );
+                    }
+                  }
+                : null,
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16.0,horizontal: 4.0),
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4.0),
               backgroundColor: Colors.green,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14.0), // Set border radius
+                borderRadius: BorderRadius.circular(14.0),
+              ),
+            ),
+            child: const Text(
+              'Update',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -94,18 +120,19 @@ class _ChooseFileScreenState extends State<ChooseFileScreen> {
   }
 }
 
-// class FileItem {
-//   final String name;
-//   final String size;
-//   final IconData icon;
-//   final Color color;
-//   bool uploaded;
+// Define the FileItem class as you need it
+class FileItem {
+  final String name;
+  final String size;
+  final IconData icon;
+  final Color color;
+  bool uploaded;
 
-//   FileItem({
-//     required this.name,
-//     required this.size,
-//     required this.icon,
-//     required this.color,
-//     this.uploaded = false,
-//   });
-// }
+  FileItem({
+    required this.name,
+    required this.size,
+    required this.icon,
+    required this.color,
+    this.uploaded = false,
+  });
+}
