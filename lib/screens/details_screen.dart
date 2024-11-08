@@ -14,6 +14,7 @@ class DetailsPage extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DetailsPageState createState() => _DetailsPageState();
 }
 
@@ -191,7 +192,7 @@ class _DetailsPageState extends State<DetailsPage>
                 label: "Page No", // Label for the text field
                 onChanged: (value) {
                   colorPageNumber = value; // Store the page number input
-                },
+                }, keyboardType: TextInputType.text,
               ),
             ],
           ],
@@ -202,6 +203,7 @@ class _DetailsPageState extends State<DetailsPage>
           const SizedBox(height: 8), // Add spacing between title and text field
           CustomTextField(
             label: "", // No label for this text field
+            keyboardType: TextInputType.number,
             onChanged: (value) {
               numberOfCopies = int.tryParse(value) ?? 1; // Store number of copies
             },
@@ -256,7 +258,7 @@ class _DetailsPageState extends State<DetailsPage>
           const SizedBox(height: 8), // Add spacing between title and text field
           const CustomTextField(
             label: "", // No label for this text field
-            maxLines: 4,
+            maxLines: 4, keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 16), // Add spacing at the bottom
 
